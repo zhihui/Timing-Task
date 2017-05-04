@@ -159,6 +159,6 @@ function request_url($url, $timeout){
         $data["error"]["message"] = curl_error($ch);
     }
     
-    $data["data"] = $result;
+    $data["data"] = mb_substr($result, 0, 500);
     return $data;
 }
