@@ -107,7 +107,7 @@ function add_log($taskId, $log){
  */
 function fetch_tasks(){
     $db = getdb();
-    return $db->query("SELECT * FROM timing_task")->fetchAll();
+    return $db->query("SELECT * FROM timing_task WHERE status=?", array(TASK_STATUS_ENABLED))->fetchAll();
 }
 
 
@@ -150,7 +150,7 @@ function request_url($url, $timeout){
     $data["error"]["message"] = "";
     
     $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout - 1);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     $result = curl_exec($ch);
     $errno = curl_errno($ch);

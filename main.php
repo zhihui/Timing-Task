@@ -19,21 +19,21 @@ pcntl_signal(SIGCHLD, function() {
             task_stop_running($data["task_id"]);
             worker_unset($pid);
             
-            $runStatus = 1; // 成功
+            $runStatus = TASK_RUN_STATUS_SUCCESS; // 成功
             
             $log = "";
             if($data["error"]["code"]){
-                $runStatus= 0; // 失败
+                $runStatus= TASK_RUN_STATUS_FAILED; // 失败
                 $log .= "CURL ERROR: [{$data["error"]["code"]}] {$data["error"]["message"]}\n";
             }
             
             if(!$data["data"] || substr($data["data"], 0, 20) != "__CRON_RUN_SUCCESS__"){
-                $runStatus= 0; // 失败
+                $runStatus= TASK_RUN_STATUS_FAILED; // 失败
             }
             
             $log .= $data["data"];
             // 发送数据到负责更新数据的子进程
-            push_to_process("updateProcess", array("type" => "stop", "data" => array("task_id" => $data["task_id"], "runn_status" => $runStatus)));
+            push_to_process("updateProcess", array("type" => "stop", "data" => array("task_id" => $data["task_id"], "run_status" => $runStatus)));
             push_to_process("updateProcess", array("type" => "log", "data" => array("task_id" => $data["task_id"], "log" => $log)));
         }
         break;
@@ -110,10 +110,10 @@ function interval_update_data(swoole_process $worker){
             $data = decode_json($json);
             switch ($data["type"]){
                 case "run":
-                    update_task($data["data"]["task_id"], array("last_run_time" => time()));
+                    update_task($data["data"]["task_id"], array("last_run_time" => time(), "run_status" => TASK_RUN_STATUS_RUNNING));
                     break;
                 case "stop":
-                    update_task($data["data"]["task_id"], array("last_stop_time" => time()));
+                    update_task($data["data"]["task_id"], array("last_stop_time" => time(), "run_status" => $data["data"]["run_status"]));
                     break;
                 case "log":
                     add_log($data["data"]["task_id"], $data["data"]["log"]);
