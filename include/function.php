@@ -119,7 +119,6 @@ function fetch_tasks(){
 function getdb($newLink = FALSE){
     static $db = NULL;
     if($newLink || $db == NULL){
-        echo "create dblink\n";
         $db = new Database(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_DBNAME, MYSQL_CHARSET);
     }
     

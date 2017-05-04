@@ -5,6 +5,8 @@ if (substr(php_sapi_name(), 0, 3) !== 'cli') {
     die("This Programe can only be run in CLI mode");
 }
 
+echo "Timing Task Start\n";
+
 // 注册子进程终止信号
 pcntl_signal(SIGCHLD, function() {
     //必须为false，非阻塞模式
@@ -77,9 +79,6 @@ $runningTiming = swoole_timer_tick(50 , function($runningTiming) {
         if(!is_running_time($task["start_time"], $task["interval_time"])){
             continue;
         }
-        
-        echo "running task {$task["id"]} at " . date("H:i:s");
-        echo PHP_EOL;
         
         set_task_time($task["id"], $now); // 缓存任务最后运行的时间
         task_start_running($task["id"]);
